@@ -32,9 +32,21 @@ let map = null;
 
         async function fetchIssPosition() {
           try {
-            const res = await fetch('/api/iss/now');
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error || 'Veri alınamadı');
+            // Standalone: wheretheiss.at doğrudan (CORS-açık) + istemci taraflı normalize
+            const res = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+            if (!res.ok) throw new Error('ISS verisi alınamadı');
+            const raw = await res.json();
+            const data = {
+              success: true,
+              name: 'International Space Station (ISS)',
+              latitude: raw.latitude,
+              longitude: raw.longitude,
+              altitude: Math.round(raw.altitude * 10) / 10,
+              velocity: Math.round(raw.velocity),
+              visibility: raw.visibility,
+              footprint: Math.round(raw.footprint),
+              timestamp: raw.timestamp
+            };
 
             const lat = data.latitude;
             const lon = data.longitude;
